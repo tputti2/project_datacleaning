@@ -1,0 +1,58 @@
+# @begin main
+# @in Menu
+# @in Dish
+# @in MenuItem_Dataset
+# @in MenuPage_Dataset
+# @in Python_geocodes.py @desc Used Python geocodes
+# @param selected_fields
+# @param Selected_Fields
+# @param Dish_JSON
+# @param Open_Refine_JSON
+# @out Output_SQL_Files
+
+    # @begin Cleaning_in_MenuOpenrefine
+    # @in Menu
+    # @param Open_Refine_JSON
+    # @out Cleaned_Menu_File
+    # @end Cleaning_in_Openrefine
+    
+    # @begin Cleaning_in_DishOpenrefine
+    # @in Dish
+    # @param Dish_JSON
+    # @out Cleaned_Dish_File
+    # @end Cleaning_in_DishOpenrefine
+    
+    # @begin Dataset_with_Geocode
+    # @in Cleaned_Menu_File
+    # @in Python_geocodes.py @desc Used Python geocodes
+    # @out Geocoded_cleaned_dataset
+    # @end Dataset_with_Geocode 
+    
+    # @begin Selected_Dish_Cleaning
+    # @in Cleaned_Dish_File
+    # @param selected_fields
+    # @out Selected_Dish_Cleaned_File
+    # @end Selected_Dish_Cleaning
+    
+    # @begin Selected_menu_channel_geo
+    # @in Geocoded_cleaned_dataset
+    # @param Selected_Fields
+    # @out Cleaned_Menu_File_Geo
+    # @end Selected_menu_channel_geo
+    
+    # @begin Loading_Merging_Datasets
+    # @in Selected_Dish_Cleaned_File 
+    # @in Cleaned_Menu_File_Geo
+    # @in MenuItem_Dataset
+    # @in MenuPage_Dataset
+    # @out SQL_file_output
+    # @end Loading_Merging_Datasets
+    
+    # @begin Run_Sql_Checks
+    # @in SQL_file_output
+    # @out Output_SQL_Files
+    # @end Run_Sql_Checks 
+    
+# @end main
+
+

@@ -1,0 +1,109 @@
+Integrity Constraints:
+1. id is Primary key and integer and no null values
+2. 
+
+CREATE TABLE menu(
+   id                   VARCHAR(50) 
+  ,name                 VARCHAR(200)
+  ,sponsor              VARCHAR(200)
+  ,event                VARCHAR(200)
+  ,venue                VARCHAR(200)
+  ,place                VARCHAR(200)
+  ,physical_description VARCHAR(100)
+  ,occasion             VARCHAR(100)
+  ,notes                VARCHAR(300)
+  ,call_number          VARCHAR(50)
+  ,keywords             VARCHAR(100)
+  ,language             VARCHAR(50)
+  ,date                 VARCHAR(50)
+  ,location             VARCHAR(200) 
+  ,location_type        VARCHAR(100)
+  ,currency             VARCHAR(100)
+  ,currency_symbol      VARCHAR(10)
+  ,status               VARCHAR(50) 
+  ,page_count           VARCHAR(10)
+  ,dish_count           VARCHAR(10)
+);
+
+.mode csv
+.import menu.csv menu
+
+delete from menu where NOT id*1 >0
+
+CREATE TABLE dish(
+id  VARCHAR(50),
+name VARCHAR(500),
+description VARCHAR(500),
+menus_appeared VARCHAR(50),
+times_appeared VARCHAR(50),
+first_appeared VARCHAR(50),
+last_appeared VARCHAR(50),
+lowest_price VARCHAR(50),
+highest_price VARCHAR(50)
+);
+
+.mode csv
+.import Dish.csv dish
+
+CREATE TABLE menu_item(
+id VARCHAR(500),
+menu_page_id VARCHAR(500),
+price VARCHAR(500),
+high_price VARCHAR(500),
+dish_id	VARCHAR(500),
+created_at VARCHAR(500),
+updated_at VARCHAR(500),
+xpos VARCHAR(500),
+ypos VARCHAR(500)	
+);
+
+.mode csv
+.import MenuItem.csv menu_item
+
+CREATE TABLE menu_page(
+id VARCHAR(500),
+menu_id	VARCHAR(500),
+page_number VARCHAR(500),
+image_id VARCHAR(500),
+full_height VARCHAR(500),
+full_width VARCHAR(500),
+uuid VARCHAR(500)
+);
+
+.mode csv
+.import MenuPage.csv menu_page
+
+SELECT * FROM menu
+GROUP BY id,name,sponsor,event,venue,place,physical_description,occasion,notes,call_number,keywords,language,date,location,location_type,currency, currency_symbol,status,page_count,dish_count HAVING count(*) >1 ;
+
+SELECT * FROM menu GROUP BY id HAVING COUNT(ID) > 1;
+DELETE FROM menu WHERE id IN (SELECT id FROM menu where id = '');
+
+SELECT count(*) FROM menu WHERE dish_count LIKE ('0%') OR dish_count LIKE ('1%') OR dish_count LIKE ('2%') ;
+SELECT count(*) FROM menu WHERE page_count LIKE '%[^0-9]%' ;
+SELECT count(*) FROM menu WHERE id LIKE '%[^0-9]%' ;
+
+SELECT COUNT(date) FROM menu1 WHERE SUBSTR(date,1,4)*1 < 1850 AND SUBSTR(date,1,4) != "" ;
+SELECT COUNT(date) FROM menu1 WHERE (SUBSTR(date,5,1)!= "-" OR SUBSTR(date,8,1) != "-") AND SUBSTR(date,1,4) != "" ;
+SELECT COUNT(date) FROM menu1 WHERE (SUBSTR(date,6,2)*1 > 12 OR SUBSTR(date,6,2)*1 < 1) AND SUBSTR(date,6,2) != "" ;
+SELECT COUNT(date) FROM menu1 WHERE (SUBSTR(date,9,2)*1 > 31 OR SUBSTR(date,9,2)*1 < 1) AND SUBSTR(date,9,2) != "" ;
+
+UPDATE menu 
+SET sponsor = menu.location 
+WHERE (SELECT (COUNT(sponsor)*100)/(SELECT COUNT(*) FROM menu WHERE menu.sponsor != "") AS percent_match 
+FROM menu 
+WHERE lower(menu.sponsor) = lower(menu.location) AND menu.sponsor != "") > 95 
+AND (menu.name IN ("","[Restaurant Name And/Or Location Not Given]","[Restaurant And/Or Location Unknown]","Unknown","?"))
+
+UPDATE menu 
+SET name = menu.sponsor 
+WHERE (SELECT (COUNT(name)*100)/(SELECT COUNT(*) FROM menu WHERE menu.name != "") AS percent_match 
+FROM menu 
+WHERE lower(menu.name) = lower(menu.sponsor) AND menu.name != "") > 95 
+AND (menu.name IN ("","[Restaurant Name And/Or Location Not Given]","[Restaurant And/Or Location Unknown]","Unknown","?"))
+
+
+
+
+
+
