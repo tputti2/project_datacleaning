@@ -1,9 +1,8 @@
-# @begin main
-# @in Menu
 # @in Dish
 # @in MenuItem_Dataset
 # @in MenuPage_Dataset
 # @in Python_geocodes.py @desc Used Python geocodes
+# @in Currency_Symbol_Mapping 
 # @param selected_fields
 # @param Selected_Fields
 # @param Dish_JSON
@@ -26,7 +25,13 @@
     # @in Cleaned_Menu_File
     # @in Python_geocodes.py @desc Used Python geocodes
     # @out Geocoded_cleaned_dataset
-    # @end Dataset_with_Geocode 
+    # @end Dataset_with_Geocode
+    
+    # @begin Filter_Currency_Symbol
+    # @in Geocoded_cleaned_dataset
+    # @in Currency_Symbol_Mapping 
+    # @out Geocoded_Symbol_cleaned_dataset
+    # @end Filter_Currency_Symbol 
     
     # @begin Selected_Dish_Cleaning
     # @in Cleaned_Dish_File
@@ -35,7 +40,7 @@
     # @end Selected_Dish_Cleaning
     
     # @begin Selected_menu_channel_geo
-    # @in Geocoded_cleaned_dataset
+    # @in Geocoded_Symbol_cleaned_dataset
     # @param Selected_Fields
     # @out Cleaned_Menu_File_Geo
     # @end Selected_menu_channel_geo
@@ -54,5 +59,4 @@
     # @end Run_Sql_Checks 
     
 # @end main
-
 
