@@ -1,80 +1,72 @@
-# @begin main
-# @in Menu @desc d1
-# @in Dish @desc d2
-# @in MenuItem_Dataset @desc d3
-# @in MenuPage_Dataset @desc d4
-# @in Python_geocodes.py @desc Used Python geocodes
-# @in Currency_Symbol_Mapping @desc Curreny to Symbol Mapping Field 
-# @param Selected_Fields_S1 
-# @param Selected_Fields_S2 
-# @param Selected_fields_S3 
-# @param Selected_fields_S4 
-# @param Open_Refine_JSON
-# @out Output_SQL_Files
+# @begin NYPL_Dataset_Cleaning 
+# @in Menu_data @desc d1
+# @in Dish_data @desc d2
+# @in MenuItem_Data @desc d3
+# @in MenuPage_Data @desc d4
+# @in Python_geocode.py @desc Used Python geocodes
+# @in Currency_to_Symbol_Mapping @desc Curreny to Symbol Mapping Field 
+# @param Fields_to_cluster 
+# @param Fields_to_split 
+# @param fields_to_cluster 
+# @out Final_cleaned_data
 
-    # @begin Initial_Cleaning_in_OpenRefine @desc Trim leading,trailing & consecutive spaces,Convert to Title case
-    # @in Menu @desc d1
-    # @out Initial_Cleaned_Menu_File
-    # @end Initial_Cleaning
+    # @begin Initial_Cleaning_In_Excel @desc Change invalid dates and currency symbols
+    # @in Menu_data @desc d1
+    # @in Currency_to_Symbol_Mapping
+    # @out Menu_Cleaned_Excel
+    # @end Initial_Cleaning_in_Excel
     
-    # @begin Cleaning_in_DishOpenrefine
-    # @in Dish @desc d2
-    # @out Cleaned_Dish_File
-    # @end Cleaning_in_DishOpenrefine
+    # @begin Cleaning_in_OpenRefine @desc Trim leading,trailing & consecutive spaces,Convert to Title case
+    # @in Menu_Cleaned_Excel @desc d1
+    # @out Menu_Cleaned_OR
+    # @end Cleaning_in_OpenRefine
     
-    # @begin Clustering @desc Key Collision followed by Nearest Neighbour
-    # @in Initial_Cleaned_Menu_File
-    # @param Selected_Fields_S1
-    # @out Clustered_Menu_File
-    # @end Clustering
+    # @begin Clustering_in_OpenRefine @desc Key Collision followed by Nearest Neighbour
+    # @in Menu_Cleaned_OR
+    # @param Fields_to_cluster
+    # @out Menu_Clustered
+    # @end Clustering_in_OpenRefine
     
-    # @begin Splitting @desc Using Regular expressions
-    # @in Clustered_Menu_File
-    # @param Selected_Fields_S2
-    # @out Splitted_Menu_File
-    # @end Splitting
+    # @begin Splitting_in_OpenRefine @desc Using Regular expressions
+    # @in Menu_Clustered
+    # @param Fields_to_split
+    # @out Menu_Split
+    # @end Splitting_in_OpenRefine
     
-    # @begin ISO_Date_Format @desc Changing date format to ISO
-    # @in Splitted_Menu_File
-    # @out Cleaned_Menu_File
-    # @end ISO_Date_Format
+    # @begin Standardize_Date_Format @desc Changing date format to ISO in OpenRefine
+    # @in Menu_Split
+    # @out Menu_date_fixed
+    # @end Standardize_Date_Format
     
-    # @begin Dataset_with_Geocode
-    # @in Cleaned_Menu_File
-    # @in Python_geocodes.py @desc Used Python geocodes
-    # @out Geocoded_cleaned_dataset
-    # @end Dataset_with_Geocode
+    # @begin Perform_Geocoding
+    # @in Menu_date_fixed
+    # @in Python_geocode.py @desc Used Python geocodes
+    # @out Menu_Geocoded
+    # @end Perform_Geocoding
     
-    # @begin Filter_Currency_Symbol
-    # @in Geocoded_cleaned_dataset
-    # @in Currency_Symbol_Mapping 
-    # @out Geocoded_Symbol_cleaned_dataset
-    # @end Filter_Currency_Symbol 
+    # @begin Cleaning_in_Openrefine @desc Trim & Cluster dish names using OpenRefine
+    # @in Dish_data @desc d2
+    # @param fields_to_cluster
+    # @out Dish_Cleaned_OR
+    # @end Cleaning_in_Openrefine   
     
-    # @begin Selected_Dish_Cleaning
-    # @in Cleaned_Dish_File
-    # @param Selected_fields_S3
-    # @out Selected_Dish_Cleaned_File
-    # @end Selected_Dish_Cleaning
+    # @begin Loading_Datasets @desc Load only selected fields and merge them using SQLite
+    # @in Dish_Cleaned_OR
+    # @in Menu_Geocoded
+    # @in MenuItem_Data
+    # @in MenuPage_Data
+    # @out Merged_Database
+    # @end Loading_all_Datasets
     
-    # @begin Selected_menu_channel_geo
-    # @in Geocoded_Symbol_cleaned_dataset
-    # @param Selected_fields_S4
-    # @out Cleaned_Menu_File_Geo
-    # @end Selected_menu_channel_geo
+    # @begin SQL_querying @Desc Run Integrity constraints and Sanity checks 
+    # @in Merged_Database
+    # @out Sql_queried
+    # @end SQL_querying 
     
-    # @begin Loading_Merging_Datasets
-    # @in Selected_Dish_Cleaned_File 
-    # @in Cleaned_Menu_File_Geo
-    # @in MenuItem_Dataset
-    # @in MenuPage_Dataset
-    # @out SQL_file_output
-    # @end Loading_Merging_Datasets
+    # @begin Data_checking @Desc Cross verify and edit the values in PageCount and Dish count fields 
+    # @in Sql_queried
+    # @out Final_cleaned_data
+    # @end Data_checking
     
-    # @begin Run_Sql_Checks
-    # @in SQL_file_output
-    # @out Output_SQL_Files
-    # @end Run_Sql_Checks 
     
-# @end main
-
+# @end NYPL_Dataset_Cleaning 
