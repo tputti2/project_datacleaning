@@ -1,25 +1,43 @@
-# @in Dish
-# @in MenuItem_Dataset
-# @in MenuPage_Dataset
+# @begin main
+# @in Menu @desc d1
+# @in Dish @desc d2
+# @in MenuItem_Dataset @desc d3
+# @in MenuPage_Dataset @desc d4
 # @in Python_geocodes.py @desc Used Python geocodes
-# @in Currency_Symbol_Mapping 
-# @param selected_fields
-# @param Selected_Fields
-# @param Dish_JSON
+# @in Currency_Symbol_Mapping @desc Curreny to Symbol Mapping Field 
+# @param Selected_Fields_S1 
+# @param Selected_Fields_S2 
+# @param Selected_fields_S3 
+# @param Selected_fields_S4 
 # @param Open_Refine_JSON
 # @out Output_SQL_Files
 
-    # @begin Cleaning_in_MenuOpenrefine
-    # @in Menu
-    # @param Open_Refine_JSON
-    # @out Cleaned_Menu_File
-    # @end Cleaning_in_Openrefine
+    # @begin Initial_Cleaning_in_OpenRefine @desc Trim leading,trailing & consecutive spaces,Convert to Title case
+    # @in Menu @desc d1
+    # @out Initial_Cleaned_Menu_File
+    # @end Initial_Cleaning
     
     # @begin Cleaning_in_DishOpenrefine
-    # @in Dish
-    # @param Dish_JSON
+    # @in Dish @desc d2
     # @out Cleaned_Dish_File
     # @end Cleaning_in_DishOpenrefine
+    
+    # @begin Clustering @desc Key Collision followed by Nearest Neighbour
+    # @in Initial_Cleaned_Menu_File
+    # @param Selected_Fields_S1
+    # @out Clustered_Menu_File
+    # @end Clustering
+    
+    # @begin Splitting @desc Using Regular expressions
+    # @in Clustered_Menu_File
+    # @param Selected_Fields_S2
+    # @out Splitted_Menu_File
+    # @end Splitting
+    
+    # @begin ISO_Date_Format @desc Changing date format to ISO
+    # @in Splitted_Menu_File
+    # @out Cleaned_Menu_File
+    # @end ISO_Date_Format
     
     # @begin Dataset_with_Geocode
     # @in Cleaned_Menu_File
@@ -35,13 +53,13 @@
     
     # @begin Selected_Dish_Cleaning
     # @in Cleaned_Dish_File
-    # @param selected_fields
+    # @param Selected_fields_S3
     # @out Selected_Dish_Cleaned_File
     # @end Selected_Dish_Cleaning
     
     # @begin Selected_menu_channel_geo
     # @in Geocoded_Symbol_cleaned_dataset
-    # @param Selected_Fields
+    # @param Selected_fields_S4
     # @out Cleaned_Menu_File_Geo
     # @end Selected_menu_channel_geo
     
