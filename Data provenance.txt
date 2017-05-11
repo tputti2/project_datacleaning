@@ -22,10 +22,6 @@ parent(Final_cleaned_data,Sql_queried)
 
 % Descendant and Ancestor
 ancestor(X, Y1) :- parent(X, Y1).
-ancestor(X, Y2) :- parent(X, Y2).
 ancestor(X, Y1) :- parent(X, Z), ancestor(Z, Y1).
-ancestor(X, Y2) :- parent(X, Z), ancestor(Z, Y2).
 descendant(Y1, X) :- parent(X, Y1).
-descendant(Y2, X) :- parent(X, Y2).
 descendant(Y1, X) :- parent(X, Z),descendant(Y1, Z)
-descendant(Y2, X) :- parent(X, Z),descendant(Y2, Z)
