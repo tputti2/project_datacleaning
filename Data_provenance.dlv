@@ -1,0 +1,44 @@
+% parent(x,y) means x is_parent_of y.
+parent(menu_data,menu_cleaned_excel).
+parent(curreny_to_symbol_mapping,menu_cleaned_excel).
+parent(menu_cleaned_excel,menu_cleaned_or).
+parent(menu_cleaned_or,menu_clustered).
+parent(menu_clustered,menu_split).
+parent(menu_split,fields_to_split).
+parent(menu_date_fixed,menu_split).
+parent(menu_split,menu_date_fixed).
+parent(menu_date_fixed,menu_geocoded).
+parent(geocoding_geocoder,menu_geocoded).
+parent(dish_data,dish_data1).
+parent(dish_data,dish_data2).
+parent(dish_data,dish_data3).
+parent(dish_data,dish_data4).
+parent(dish_data,dish_data5).
+parent(dish_data,dish_data6).
+parent(dish_data1,dish_cleaned_or).
+parent(dish_data2,dish_cleaned_or).
+parent(dish_data3,dish_cleaned_or).
+parent(dish_data4,dish_cleaned_or).
+parent(dish_data5,dish_cleaned_or).
+parent(dish_data6,dish_cleaned_or).
+parent(dish_cleaned_or,merged_database).
+parent(menu_geocoded,merged_database).
+parent(menuitem_data,merged_database).
+parent(menupage_data,merged_database).
+parent(merged_database,sql_queried).
+parent(sql_queried,final_cleaned_data).
+
+%Ancestor: 
+ancestor(X, Y) :- parent(X, Y).
+ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).
+
+%Descendant:
+descendant(X, Y) :- parent(Y, X).
+descendant(X, Y) :- parent(Y, Z), descendant(X, Z).
+
+%To check if a node has parent or not
+has_parent(X) :- parent(Z, X).
+no_parent(Y) :- parent(Y,Z), not has_parent(Y).
+
+%Lowest Common Ancestor of two nodes
+lca(P, C1, C2) :- ancestor(P, C1),ancestor(P, C2), no_parent(P), C1 < C2. 
