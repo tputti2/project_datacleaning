@@ -1,0 +1,176 @@
+/*Creating a table for Menu dataset*/
+
+CREATE TABLE menu (
+   id                   INT(20)
+  ,name                 VARCHAR(200)
+  ,sponsor              VARCHAR(200)
+  ,event                VARCHAR(200)
+  ,event_clean          VARCHAR(200)
+  ,venue                VARCHAR(200)
+  ,venue_clean          VARCHAR(200)
+  ,place                VARCHAR(200)
+  ,place_clean          VARCHAR(200)
+  ,physical_description1 VARCHAR(100)
+  ,physical_description2 VARCHAR(100)
+  ,Dimensions            VARCHAR(100)
+  ,occasion             VARCHAR(100)
+  ,notes                VARCHAR(500)
+  ,call_number          VARCHAR(50)
+  ,keywords             VARCHAR(100)
+  ,language             VARCHAR(50)
+  ,date                 VARCHAR(50)
+  ,location             VARCHAR(200) 
+  ,location_clean       VARCHAR(200) 
+  ,location_type        VARCHAR(100)
+  ,currency             VARCHAR(100)
+  ,currency_symbol      VARCHAR(10)
+  ,status               VARCHAR(50) 
+  ,page_count           INT(20)
+  ,dish_count           INT(20)
+  ,place_lat	        VARCHAR(200)
+  ,place_lng	        VARCHAR(200)
+  ,place_city	        VARCHAR(200)
+  ,place_state	        VARCHAR(200)
+) ;
+
+/*Importing the menu csv file into the table*/
+.mode csv
+.import menu.csv menu
+
+/*import command imports the headers also as of one the rows. So, deleting that row which has all headers*/
+delete from menu where NOT id*1 >0 ;
+
+.header on 
+
+/*Making sure the number of records is 17079*/
+select count(*) from menu ;
+select notes from menu limit 5 ;
+
+
+/*Selecting the fields that we need to retain in the final dataset*/
+BEGIN TRANSACTION;
+CREATE TABLE menu_selected(
+   id                   INT(20)
+  ,event_clean          VARCHAR(200)
+  ,venue_clean          VARCHAR(200)
+  ,place_clean          VARCHAR(200)
+  ,physical_description1 VARCHAR(100)
+  ,physical_description2 VARCHAR(100)
+  ,Dimensions            VARCHAR(100)
+  ,occasion             VARCHAR(100)
+  ,notes                VARCHAR(500)
+  ,call_number          VARCHAR(50)
+  ,date                 VARCHAR(50)
+  ,location_clean       VARCHAR(200) 
+  ,currency             VARCHAR(100)
+  ,currency_symbol      VARCHAR(10)
+  ,status               VARCHAR(50) 
+  ,page_count           INT(20)
+  ,dish_count           INT(20)
+  ,place_lat	        VARCHAR(200)
+  ,place_lng	        VARCHAR(200)
+  ,place_city	        VARCHAR(200)
+  ,place_state	        VARCHAR(200)
+);
+INSERT INTO menu_selected SELECT id,event_clean,venue_clean,place_clean,physical_description1,physical_description2,Dimensions,occasion,notes,call_number,date,location_clean,currency,currency_symbol,status,page_count,dish_count,place_lat,place_lng,place_city,place_state FROM menu;
+COMMIT;
+
+select notes from menu_selected limit 5 ;
+
+/*Loading Dish dataset*/
+
+CREATE TABLE dish(
+id  VARCHAR(50),
+name VARCHAR(500),
+description VARCHAR(500),
+menus_appeared VARCHAR(50),
+times_appeared VARCHAR(50),
+first_appeared VARCHAR(50),
+last_appeared VARCHAR(50),
+lowest_price VARCHAR(50),
+highest_price VARCHAR(50)
+);
+
+.mode csv
+.import Dish.csv dish
+delete from dish where NOT id*1 >0 ;
+
+/*Loading Menu Item dataset*/
+
+CREATE TABLE menu_item(
+id            VARCHAR(500),
+menu_page_id  VARCHAR(500),
+price         VARCHAR(500),
+high_price    VARCHAR(500),
+dish_id	      VARCHAR(500),
+created_at    VARCHAR(500),
+updated_at    VARCHAR(500),
+xpos          VARCHAR(500),
+ypos          VARCHAR(500)	
+);
+
+.mode csv
+.import MenuItem.csv menu_item
+delete from menu_item where NOT id*1 >0 ;
+
+/*Loading Menu Page dataset*/
+
+CREATE TABLE menu_page(
+id            VARCHAR(500),
+menu_id	      VARCHAR(500),
+page_number   VARCHAR(500),
+image_id      VARCHAR(500),
+full_height   VARCHAR(500),
+full_width    VARCHAR(500),
+uuid          VARCHAR(500)
+);
+
+.mode csv
+.import MenuPage.csv menu_page
+delete from menu_page where NOT id*1 >0 ;
+
+/*Updating all the blank page_numbers to 1 for counting purposes*/
+UPDATE menu_page
+SET page_number = 1
+WHERE page_number = "" ;
+
+/*To cross check if the pagecount field in Menu data and that derived from the Menu Page data is same or not*/
+CREATE TABLE merge_page AS
+      SELECT menu.id AS id1, menu.page_count AS page_count1, menu_page.page_number
+      FROM menu, menu_page
+      WHERE menu.id = menu_page.menu_id  
+;
+
+/*this query shows that page_count in 17079 rows of menu data match with the page count information in Menupage data*/  
+SELECT COUNT(*) FROM (SELECT id1, page_count1, COUNT(page_number) as page_count2 FROM merge_page GROUP BY id1,page_count1) WHERE page_count1 = page_count2 ;
+
+/*To cross check if the dish_count field in Menu data and that derived from the Dish data is same or not*/
+CREATE TABLE merge_dish AS
+      SELECT menu.id AS id1, menu.dish_count as dish_count1, menu_item.dish_id as dish_id
+      FROM menu, menu_page, menu_item
+      WHERE menu.id = menu_page.menu_id and menu_item.menu_page_id = menu_page.id
+;
+
+/*1093 menus have wrong dish counts in the Menu dataset*/
+SELECT COUNT(*) FROM (SELECT id1, dish_count1, COUNT(dish_id) as dish_count2 FROM merge_dish GROUP BY id1,dish_count1) WHERE NOT dish_count1 = dish_count2 ;
+
+.mode csv
+.output dish_count_mismatch.csv
+SELECT * FROM (SELECT id1, dish_count1, COUNT(dish_id) as dish_count2 FROM merge_dish GROUP BY id1,dish_count1) WHERE NOT dish_count1 = dish_count2 ;
+.output stdout
+
+/*To merge all the four datasets into one final dataset*/
+CREATE TABLE merge_all AS
+SELECT menu.id as menu_id, event_clean, venue_clean, place_clean, physical_description1, physical_description2, Dimensions,
+occasion, notes, call_number, date, location_clean, currency,currency_symbol, status, page_count,
+dish_count, place_lat, place_lng,place_city,place_state,dish.id as dish_id,
+dish.name as dish_name, menus_appeared, times_appeared, first_appeared, last_appeared, lowest_price, highest_price
+FROM menu, menu_page, menu_item, dish
+WHERE menu.id = menu_page.menu_id and menu_item.menu_page_id = menu_page.id and menu_item.dish_id = dish.id
+;
+
+.mode csv
+.output Final_NYPL_data.csv
+SELECT * FROM merge_all;
+.output stdout
+

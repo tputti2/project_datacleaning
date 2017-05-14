@@ -1,0 +1,55 @@
+/*Query to check Exact duplicates*/
+.mode csv
+.output exact_duplicates.csv
+SELECT * FROM menu
+GROUP BY id, event_clean, venue_clean, place_clean, physical_description1, physical_description2, Dimensions, occasion, notes, call_number, date, location_clean,currency,currency_symbol,status,page_count,dish_count,place_lat,place_lng,place_city,place_state HAVING count(*) >1 ;
+.output stdout
+
+/*Query to check primary key constraint*/
+.mode csv
+.output primary_key_violation.csv
+SELECT * FROM menu GROUP BY id HAVING COUNT(ID) > 1;
+.output stdout
+
+/*Query to check and delete null values*/
+.mode csv
+.output null_values.csv
+SELECT * FROM menu WHERE id = '';
+.output stdout
+DELETE FROM menu WHERE id IN (SELECT id FROM menu WHERE id = '');
+
+/*Query to check invalid dates*/
+.mode csv
+.output date_invalid.csv
+SELECT * FROM menu WHERE ( SUBSTR(date,1,4)*1 < 1850 OR SUBSTR(date,1,4) = "") ;   
+SELECT * FROM menu WHERE (SUBSTR(date,5,1)!= "-" OR SUBSTR(date,8,1) != "-") AND SUBSTR(date,1,4) != "" ;
+SELECT * FROM menu WHERE (SUBSTR(date,6,2)*1 > 12 OR SUBSTR(date,6,2)*1 < 1) AND SUBSTR(date,6,2) != "" ;
+SELECT * FROM menu WHERE (SUBSTR(date,9,2)*1 > 31 OR SUBSTR(date,9,2)*1 < 1) AND SUBSTR(date,9,2) != "" ;
+.output stdout
+
+/*Checking percent match between Name and Location field*/
+SELECT (COUNT(name)*100)/(SELECT COUNT(*) FROM menu WHERE NOT  
+(menu.name IN ("","[Restaurant Name And/Or Location Not Given]","[Restaurant And/Or Location Unknown]","Unknown","?"))) AS percent_match 
+FROM menu 
+WHERE (lower(menu.name) = lower(menu.location) AND NOT  
+(menu.name IN ("","[Restaurant Name And/Or Location Not Given]","[Restaurant And/Or Location Unknown]","Unknown","?")))
+
+/*Checking percent match between Sponsor and Location field*/
+SELECT (COUNT(sponsor)*100)/(SELECT COUNT(*) FROM menu WHERE NOT  
+(menu.sponsor IN ("","[Restaurant Name And/Or Location Not Given]","[Restaurant And/Or Location Unknown]","Unknown","?"))) AS percent_match 
+FROM menu 
+WHERE (lower(menu.sponsor) = lower(menu.location) AND NOT  
+(menu.sponsor IN ("","[Restaurant Name And/Or Location Not Given]","[Restaurant And/Or Location Unknown]","Unknown","?")))
+
+/*Checking lowest price <= highest price in dish data*/
+.mode csv
+.output incorrect_dish_price.csv
+SELECT * FROM dish WHERE lowest_price*1 > highest_price*1 ;
+.output stdout
+
+/*Checking valid years and first appeared date <= last appeared date in dish data*/
+.mode csv
+.output incorrect_dish_date.csv
+SELECT * FROM dish WHERE first_appeared*1 > last_appeared*1;
+SELECT * FROM dish WHERE first_appeared in ('0','1','2928') or last_appeared in ('0','1','2928'); 
+.output stdout
