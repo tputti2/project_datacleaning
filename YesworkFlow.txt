@@ -1,0 +1,87 @@
+# @begin NYPL_Dataset_Cleaning 
+# @in Menu_data @file file:menu.csv 
+# @in Dish_data @file file:Dish.csv
+# @in MenuItem_Data @file file:MenuItem
+# @in MenuPage_Data @file file:MenuPage
+# @in Geocode_in_python @file file:Geocoding_geocoder.ipynb
+# @in Currency_to_Symbol_Mapping @file file:Currency_to_symbol_mapping.xlsx 
+# @param Fields_to_cluster 
+# @param Fields_to_split 
+# @param fields_to_cluster 
+# @out Final_cleaned_data
+
+    # @begin Initial_Cleaning_In_Excel @desc Change invalid dates and currency symbols
+    # @in Menu_data 
+    # @in Currency_to_Symbol_Mapping
+    # @out Menu_Cleaned_Excel
+    # @end Initial_Cleaning_in_Excel
+    
+    # @begin Cleaning_in_OpenRefine @desc Trim leading,trailing & consecutive spaces,Convert to Title case
+    # @in Menu_Cleaned_Excel 
+    # @out Menu_Cleaned_OR
+    # @end Cleaning_in_OpenRefine
+    
+    # @begin Clustering_in_OpenRefine @desc Key Collision followed by Nearest Neighbour
+    # @in Menu_Cleaned_OR
+    # @param Fields_to_cluster
+    # @out Menu_Clustered
+    # @end Clustering_in_OpenRefine
+    
+    # @begin Splitting_in_OpenRefine @desc Using Regular expressions
+    # @in Menu_Clustered
+    # @param Fields_to_split
+    # @out Menu_Split
+    # @end Splitting_in_OpenRefine
+    
+    # @begin Standardize_Date_Format @desc Changing date format to ISO in OpenRefine
+    # @in Menu_Split
+    # @out Menu_date_fixed
+    # @end Standardize_Date_Format
+    
+    # @begin Perform_Geocoding
+    # @in Menu_date_fixed
+    # @in Geocode_in_python @desc Used Python geocodes
+    # @out Menu_Geocoded
+    # @end Perform_Geocoding  
+ 
+    # @begin Splitting_Dish_data @desc Dish is a huge data, so should be split\nin order to perform clustering 
+    # @in Dish_data
+    # @out Dish_data1
+    # @out Dish_data2
+    # @out Dish_data3
+    # @out Dish_data4
+    # @out Dish_data5
+    # @out Dish_data6
+    # @end Splitting_Dish_data 
+    
+    # @begin Cleaning_in_Openrefine @desc Trim & Cluster dish names using OpenRefine \nand merge into one excel sheet
+    # @in Dish_data1
+    # @in Dish_data2
+    # @in Dish_data3
+    # @in Dish_data4
+    # @in Dish_data5
+    # @in Dish_data6
+    # @param fields_to_cluster
+    # @out Dish_Cleaned_OR
+    # @end Cleaning_in_Openrefine   
+ 
+    # @begin Loading_Datasets @desc Load only selected fields and merge them using SQLite
+    # @in Dish_Cleaned_OR
+    # @in Menu_Geocoded
+    # @in MenuItem_Data
+    # @in MenuPage_Data
+    # @out Merged_Database
+    # @end Loading_all_Datasets
+
+    # @begin SQL_querying @Desc Run Integrity constraints and Sanity checks 
+    # @in Merged_Database
+    # @out Sql_queried
+    # @end SQL_querying 
+    
+    # @begin Data_checking @Desc Cross verify and edit the values in PageCount and Dish count fields 
+    # @in Sql_queried
+    # @out Final_cleaned_data @file file:Final_NYPL_data
+    # @end Data_checking
+    
+    
+# @end NYPL_Dataset_Cleaning
